@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Net;
 using System.Threading.Tasks;
 using Bookish.DataAccess;
 using Bookish.DataAccess.Models;
@@ -21,36 +23,51 @@ namespace Bookish.Web.Controllers {
         public IActionResult AddBook(AddBookFormModel bookData) {
             Console.WriteLine(
                 $"Trying to add book: {bookData.Isbn} | {bookData.Title} | {bookData.Author} | {bookData.NumCopiesOwned}");
-            int numCopies = GetNumCopies(bookData.NumCopiesOwned);
 
-            for (int bookNumber = 0; bookNumber < numCopies; bookNumber++) {
-                _dao.Add(new BookForDB(bookData.Isbn, bookData.Title, bookData.Author));
+            List<Exception> exceptions = new List<Exception>();
+            try {
+                int numCopies = GetNumCopies(bookData.NumCopiesOwned);
+                for (int bookNumber = 0; bookNumber < numCopies; bookNumber++) {
+                    _dao.Add(new BookForDB(bookData.Isbn, bookData.Title, bookData.Author));
+                }
+            } catch (Exception e) {
+                exceptions.Add(
+                    new Exception(
+                        "There was a problem adding the new book to the database: " + e.Message
+                    )
+                );
             }
 
-            return View("Books", GenerateBooksPageModel());
+            return View("Books", GenerateBooksPageModel(exceptions));
         }
 
         public IActionResult Books() {
-            return View(GenerateBooksPageModel());
-        }
-
-        private BooksPageModel GenerateBooksPageModel() {
-            return new BooksPageModel(_dao.GetAllBooks(), _dao.GetAllLoans());
+            return View(GenerateBooksPageModel(new List<Exception>()));
         }
         
         private int GetNumCopies(string numCopiesOwned) {
             try {
                 return int.Parse(numCopiesOwned);
             } catch (FormatException) {
-                Console.WriteLine("There was a problem adding the book: NumCopiesOwned is in the wrong format.");
+                throw new Exception("NumCopiesOwned is in the wrong format.");
             } catch (ArgumentNullException) {
-                Console.WriteLine("There was a problem adding the book: NumCopiesOwned is null.");
+                throw new Exception("NumCopiesOwned was not given.");
             } catch (OverflowException) {
-                Console.WriteLine(
-                    "There was a problem adding the book: NumCopiesOwned is too big / small to fit into an int.");
+                throw new Exception("NumCopiesOwned is too big / small to fit into an int.");
             }
-
-            return 0;
+        }
+        
+        private BooksPageModel GenerateBooksPageModel(List<Exception>  exceptions) {
+            List<LoanFromDB> loans = new List<LoanFromDB>();
+            List<BookFromDB> books = new List<BookFromDB>();
+            try {
+                books.AddRange(_dao.GetAllBooks());
+                loans.AddRange(_dao.GetAllLoans());
+            } catch (Exception e) {
+                exceptions.Add(e);
+            }
+            
+            return new BooksPageModel(books, loans, exceptions);
         }
     }
 }

@@ -9,12 +9,16 @@ namespace Bookish.Web.Models {
     public class BooksPageModel {
         public BookListModel BookList { get; set; }
         public AddBookFormModel FormModel { get; set; }
+        public BookExceptionList ExceptionList { get; set; }
 
-        public BooksPageModel(IEnumerable<BookFromDB> bookList, IEnumerable<LoanFromDB> loanList) {
+        public BooksPageModel(IEnumerable<BookFromDB> bookList, IEnumerable<LoanFromDB> loanList,
+            IEnumerable<Exception> exceptions) {
             BookList = new BookListModel(
                 GenerateWebBookEnumerableFromDBRecords(bookList, loanList));
+
+            ExceptionList = new BookExceptionList(exceptions);
         }
-        
+
         private static IEnumerable<BookForWeb> GenerateWebBookEnumerableFromDBRecords(
             IEnumerable<BookFromDB> books,
             IEnumerable<LoanFromDB> loans
@@ -31,20 +35,5 @@ namespace Bookish.Web.Models {
                     );
                 });
         }
-
-//        public class BookListModel {
-//            public IEnumerable<BookForWeb> BooksList { get; set; }
-//
-//            public BookListModel(IEnumerable<BookForWeb> booksList) {
-//                BooksList = booksList;
-//            }
-//        }
-        
-//        public class AddBookFormModel {
-//            public string Isbn { get; set; }
-//            public string Title { get; set; }
-//            public string Author { get; set; }
-//            public string NumCopiesOwned { get; set; }
-//        }
     }
 }

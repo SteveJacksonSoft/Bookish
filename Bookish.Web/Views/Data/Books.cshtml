@@ -6,20 +6,27 @@
 }
 
 <div>
+    @if (Model.ExceptionList.Exceptions.Any()) {
+        @foreach (Exception exception in Model.ExceptionList.Exceptions) {
+            <div class="alert alert-danger">
+                An error has occurred: @exception.Message
+            </div>
+        }
+    }
     <h1>This is a list of the books currently owned by the library</h1>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">ISBN</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">Number of Copies Owned</th>
-                    <th scope="col">Number of Copies Available</th>
-                </tr>
-            </thead>
-            <tbody>
-                <partial name="AddBookPartial" model="@Model.FormModel"/>
-                <partial name="BookListPartial" model="@Model.BookList"/>
-            </tbody>
-        </table>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">ISBN</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Number of Copies Owned</th>
+            <th scope="col">Number of Copies Available</th>
+        </tr>
+        </thead>
+        <tbody>
+        <partial name="AddBookPartial" model="@Model.FormModel"/>
+        <partial name="BookListPartial" model="@Model.BookList"/>
+        </tbody>
+    </table>
 </div>
