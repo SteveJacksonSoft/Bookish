@@ -1,0 +1,22 @@
+@using Microsoft.EntityFrameworkCore;
+@model AddBookFormModel;
+
+@using (@Html.BeginForm("AddBook", "Data")) {
+    <tr>
+        <td>
+            @Html.TextBoxFor(model => model.Isbn)
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.Title)
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.Author)
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.NumCopiesOwned)
+        </td>
+        <td>
+            <input type="submit" class="btn" value="Add">
+        </td>
+    </tr>
+}
